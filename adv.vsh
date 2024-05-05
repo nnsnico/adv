@@ -28,7 +28,7 @@ mut app := cli.Command{
 
 app.add_command(cli.Command{
 	name: 'devices'
-	description: 'list connected devices'
+	description: 'List connected devices'
 	execute: fn (_ cli.Command) ! {
 		adb := cmd.create_adb() or { print_err(err) }
 		all_devices := adb.get_all_active_devices() or { print_err(err) }
@@ -41,7 +41,7 @@ app.add_command(cli.Command{
 
 app.add_command(cli.Command{
 	name: 'device'
-	description: 'select a device from connected device list'
+	description: 'Select a device from connected device list'
 	execute: fn (_ cli.Command) ! {
 		adb := cmd.create_adb() or { print_err(err) }
 		selected_device := adb.select_active_device() or { print_err(err) }
