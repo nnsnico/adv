@@ -50,5 +50,25 @@ app.add_command(cli.Command{
 	}
 })
 
+app.add_command(cli.Command{
+	name: 'screencap'
+	description: 'Capture a screenshot from a connected device with the given file name'
+	execute: fn (c cli.Command) ! {
+		adb := cmd.create_adb() or { print_err(err) }
+
+		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
+		adb.capture_screen(c.args[0], is_exec_pull) or { print_err(err) }
+	}
+	required_args: 1
+	flags: [
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'pull'
+			abbrev: 'p'
+			description: 'Pull captured screen image at the same time'
+		},
+	]
+})
+
 app.setup()
 app.parse(os.args)
