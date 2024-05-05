@@ -101,5 +101,26 @@ app.add_command(cli.Command{
 	]
 })
 
+mut developer := cli.Command{
+	name: 'developer'
+	description: 'Commands for Android develoepr'
+}
+developer.add_command(cli.Command{
+	name: 'showtap'
+	description: 'Show tap position'
+	execute: fn (c cli.Command) ! {
+		adb := cmd.Adb.create() or { print_err(err) }
+
+    tap_status := if c.args.len == 0 {
+      cmd.TapStatus.toggle
+    } else {
+      cmd.TapStatus.from(c.args[0].int()) or { print_err(err) }
+    }
+		adb.show_tap(tap_status) or { print_err(err) }
+	}
+})
+
+app.add_command(developer)
+
 app.setup()
 app.parse(os.args)
