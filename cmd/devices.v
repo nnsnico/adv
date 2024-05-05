@@ -5,7 +5,7 @@ import android
 import io.util { temp_file }
 
 pub fn (a Adb) get_all_active_devices() ![]android.Device {
-	devices := a.get_devices_str()!.map(fn (s string) android.Device {
+	devices := get_devices_str(a)!.map(fn (s string) android.Device {
 		device_info := s.split('\t')
 		return android.Device{
 			name: device_info[0]
@@ -24,7 +24,7 @@ pub fn (a Adb) select_active_device() !android.Device {
 		return error('Not found FZF in your Environment PATH')
 	}
 
-	device_str := a.get_devices_str()!
+	device_str := get_devices_str(a)!
 
 	_, input_file := temp_file()!
 	_, output_file := temp_file()!
@@ -49,14 +49,14 @@ pub fn (a Adb) select_active_device() !android.Device {
 	return device
 }
 
-fn (a Adb) get_devices_str() ![]string {
+fn get_devices_str(a Adb) ![]string {
 	devices_str := os.execute_opt('${a.path} devices')!.output.trim('\n')
 	mut devices := devices_str.split('\n')
 	devices.drop(1)
 
 	if devices.len != 0 && devices[0].contains('* daemon started successfully') {
 		devices.clear()
-		return a.get_devices_str()!
+		return get_devices_str(a)!
 	} else {
 		return devices
 	}
