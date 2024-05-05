@@ -104,6 +104,9 @@ app.add_command(cli.Command{
 mut developer := cli.Command{
 	name: 'developer'
 	description: 'Commands for Android develoepr'
+  execute: fn (c cli.Command) ! {
+    c.execute_help()
+  }
 }
 developer.add_command(cli.Command{
 	name: 'showtap'
