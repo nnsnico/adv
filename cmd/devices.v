@@ -55,5 +55,10 @@ fn (a Adb) get_devices_str() ![]string {
 	mut devices := devices_str.split('\n')
 	devices.drop(1)
 
-	return devices
+	if devices.len != 0 && devices[0].contains("* daemon started successfully") {
+		devices.clear()
+		return a.get_devices_str()!
+	} else {
+		return devices
+	}
 }
