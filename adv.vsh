@@ -51,6 +51,17 @@ app.add_command(cli.Command{
 })
 
 app.add_command(cli.Command{
+	name: 'pull'
+	description: 'Pull the specified file from a selected device'
+	execute: fn (c cli.Command) ! {
+		adb := cmd.create_adb() or { print_err(err) }
+
+		adb.pull_file(c.args[0]) or { print_err(err) }
+	}
+	required_args: 1
+})
+
+app.add_command(cli.Command{
 	name: 'screencap'
 	description: 'Capture a screenshot from a connected device with the given file name'
 	execute: fn (c cli.Command) ! {
@@ -66,6 +77,26 @@ app.add_command(cli.Command{
 			name: 'pull'
 			abbrev: 'p'
 			description: 'Pull captured screen image at the same time'
+		},
+	]
+})
+
+app.add_command(cli.Command{
+	name: 'screenrecord'
+	description: 'Record a screen from a connected device with the given file name'
+	execute: fn (c cli.Command) ! {
+		adb := cmd.create_adb() or { print_err(err) }
+
+		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
+		adb.record_screen(c.args[0], is_exec_pull) or { print_err(err) }
+	}
+	required_args: 1
+	flags: [
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'pull'
+			abbrev: 'p'
+			description: 'Pull recorded screen video at the same time'
 		},
 	]
 })
