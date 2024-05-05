@@ -8,7 +8,7 @@ pub:
 	path string
 }
 
-pub fn create_adb() !Adb {
+pub fn Adb.create() !Adb {
 	adb_path := os.find_abs_path_of_executable('adb')!
 
 	return Adb{

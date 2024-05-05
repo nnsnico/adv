@@ -30,7 +30,7 @@ app.add_command(cli.Command{
 	name: 'devices'
 	description: 'List connected devices'
 	execute: fn (_ cli.Command) ! {
-		adb := cmd.create_adb() or { print_err(err) }
+		adb := cmd.Adb.create() or { print_err(err) }
 		all_devices := adb.get_all_active_devices() or { print_err(err) }
 
 		for d in all_devices {
@@ -43,7 +43,7 @@ app.add_command(cli.Command{
 	name: 'device'
 	description: 'Select a device from connected device list'
 	execute: fn (_ cli.Command) ! {
-		adb := cmd.create_adb() or { print_err(err) }
+		adb := cmd.Adb.create() or { print_err(err) }
 		selected_device := adb.select_active_device() or { print_err(err) }
 
 		println(selected_device.name)
@@ -54,7 +54,7 @@ app.add_command(cli.Command{
 	name: 'pull'
 	description: 'Pull the specified file from a selected device'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.create_adb() or { print_err(err) }
+		adb := cmd.Adb.create() or { print_err(err) }
 
 		adb.pull_file(c.args[0]) or { print_err(err) }
 	}
@@ -65,7 +65,7 @@ app.add_command(cli.Command{
 	name: 'screencap'
 	description: 'Capture a screenshot from a connected device with the given file name'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.create_adb() or { print_err(err) }
+		adb := cmd.Adb.create() or { print_err(err) }
 
 		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
 		adb.capture_screen(c.args[0], is_exec_pull) or { print_err(err) }
@@ -85,7 +85,7 @@ app.add_command(cli.Command{
 	name: 'screenrecord'
 	description: 'Record a screen from a connected device with the given file name'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.create_adb() or { print_err(err) }
+		adb := cmd.Adb.create() or { print_err(err) }
 
 		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
 		adb.record_screen(c.args[0], is_exec_pull) or { print_err(err) }
