@@ -31,7 +31,11 @@ pub fn (a Adb) select_active_device() !android.Device {
 
 	os.write_file(input_file, device_str.join('\n'))!
 
-	os.system('${fzf} -0 -1 --preview= < "${input_file}" > "${output_file}"')
+	code := os.system('${fzf} -0 -1 --preview= < "${input_file}" > "${output_file}"')
+
+	if code != 0 {
+		return error('Left from FZF')
+	}
 
 	selected_line := os.read_file(output_file)!.split('\t')
 	device := android.Device{
