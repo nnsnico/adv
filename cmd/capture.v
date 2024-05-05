@@ -12,6 +12,7 @@ pub fn (a Adb) capture_screen(file_name string, is_exec_pull bool) ! {
 
 	if is_exec_pull {
 		a.exec_pull(selected_device, '${cmd.picture_path}/${file_name}.png')!
+		a.remove_file(selected_device, '${cmd.picture_path}/${file_name}.png')!
 	}
 }
 
@@ -21,6 +22,7 @@ pub fn (a Adb) record_screen(file_name string, is_exec_pull bool) ! {
 
 	if is_exec_pull {
 		a.exec_pull(selected_device, '${cmd.movie_path}/${file_name}.mp4')!
+		a.remove_file(selected_device, '${cmd.movie_path}/${file_name}.mp4')!
 	}
 }
 
