@@ -6,10 +6,6 @@ pub fn response_success(message string) string {
 	return term.green('${message}')
 }
 
-pub fn response_ok(message string) string {
-	return term.green('${message}')
-}
-
 pub fn response_err(message string) string {
 	return term.red('${message}')
 }
