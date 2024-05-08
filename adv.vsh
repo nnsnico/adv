@@ -103,24 +103,51 @@ app.add_command(cli.Command{
 
 mut developer := cli.Command{
 	name: 'developer'
-	description: 'Commands for Android develoepr'
-  execute: fn (c cli.Command) ! {
-    c.execute_help()
-  }
+	description: 'Commands for Android developer.'
+	execute: fn (c cli.Command) ! {
+		c.execute_help()
+	}
 }
 developer.add_command(cli.Command{
 	name: 'showtap'
-	description: 'Show tap position'
+	usage: '[value 1|0|on|off]'
+	description: 'Show tap position.'
 	execute: fn (c cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
+		is_toggle := c.flags.get_bool('toggle') or { print_err(err) }
+		is_show_status := c.flags.get_bool('status') or { print_err(err) }
 
-    tap_status := if c.args.len == 0 {
-      cmd.TapStatus.toggle
-    } else {
-      cmd.TapStatus.from(c.args[0].int()) or { print_err(err) }
-    }
-		adb.show_tap(tap_status) or { print_err(err) }
+		if is_toggle {
+			next_status := adb.toggle_tap() or { print_err(err) }
+			println(utils.response_success('Toggle showtap status to `${next_status}`'))
+			exit(0)
+		} else if is_show_status {
+			current_status := adb.get_showtap_status() or { print_err(err) }
+			println(utils.response_success('Current showtap status: ${current_status}'))
+			exit(0)
+		} else {
+			if c.args.len == 0 {
+				print_err(error('Please set value `1(on)` or `0(off)`'))
+			}
+
+			next_status := adb.show_tap(c.args[0]) or { print_err(err) }
+			println(utils.response_success('Set showtap status to `${next_status}`'))
+		}
 	}
+	flags: [
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'toggle'
+			abbrev: 't'
+			description: 'Toggle tap visibility.'
+		},
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'status'
+			abbrev: 's'
+			description: 'Show tap visibility status.'
+		},
+	]
 })
 
 app.add_command(developer)
