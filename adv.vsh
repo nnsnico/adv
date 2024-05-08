@@ -28,7 +28,7 @@ mut app := cli.Command{
 
 app.add_command(cli.Command{
 	name: 'devices'
-	description: 'List connected devices'
+	description: 'List connected devices.'
 	execute: fn (_ cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
 		all_devices := adb.get_all_active_devices() or { print_err(err) }
@@ -41,7 +41,7 @@ app.add_command(cli.Command{
 
 app.add_command(cli.Command{
 	name: 'device'
-	description: 'Select a device from connected device list'
+	description: 'Select a device from connected device list.'
 	execute: fn (_ cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
 		selected_device := adb.select_active_device() or { print_err(err) }
@@ -52,7 +52,7 @@ app.add_command(cli.Command{
 
 app.add_command(cli.Command{
 	name: 'pull'
-	description: 'Pull the specified file from a selected device'
+	description: 'Pull the specified file from a selected device.'
 	execute: fn (c cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
 
@@ -63,7 +63,7 @@ app.add_command(cli.Command{
 
 app.add_command(cli.Command{
 	name: 'screencap'
-	description: 'Capture a screenshot from a connected device with the given file name'
+	description: 'Capture a screenshot from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
 
@@ -76,14 +76,14 @@ app.add_command(cli.Command{
 			flag: cli.FlagType.bool
 			name: 'pull'
 			abbrev: 'p'
-			description: 'Pull captured screen image at the same time'
+			description: 'Pull captured screen image at the same time.'
 		},
 	]
 })
 
 app.add_command(cli.Command{
 	name: 'screenrecord'
-	description: 'Record a screen from a connected device with the given file name'
+	description: 'Record a screen from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
 		adb := cmd.Adb.create() or { print_err(err) }
 
@@ -96,7 +96,7 @@ app.add_command(cli.Command{
 			flag: cli.FlagType.bool
 			name: 'pull'
 			abbrev: 'p'
-			description: 'Pull recorded screen video at the same time'
+			description: 'Pull recorded screen video at the same time.'
 		},
 	]
 })
