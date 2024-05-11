@@ -1,12 +1,11 @@
 module cmd
 
 import android
-import os
 
 const picture_path = '/sdcard/Pictures'
 const movie_path = '/sdcard/Movies'
 
-pub fn (a Adb) capture_screen(file_name string, is_exec_pull bool) ! {
+pub fn capture_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 	selected_device := a.select_active_device()!
 	exec_screencap(a, selected_device, file_name)!
 
@@ -16,7 +15,7 @@ pub fn (a Adb) capture_screen(file_name string, is_exec_pull bool) ! {
 	}
 }
 
-pub fn (a Adb) record_screen(file_name string, is_exec_pull bool) ! {
+pub fn record_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 	selected_device := a.select_active_device()!
 	exec_screenrecord(a, selected_device, file_name)!
 
@@ -26,22 +25,22 @@ pub fn (a Adb) record_screen(file_name string, is_exec_pull bool) ! {
 	}
 }
 
-pub fn (a Adb) pull_file(absolute_path string) ! {
+pub fn pull_file(a android.Adb, absolute_path string) ! {
 	selected_device := a.select_active_device()!
 	exec_pull(a, selected_device, absolute_path)!
 }
 
-fn exec_screencap(adb Adb, device android.Device, file_name string) ! {
-	os.execute_opt('${adb.path} -s ${device.name} shell screencap ${cmd.picture_path}/${file_name}.png')!
+fn exec_screencap(adb android.Adb, device android.Device, file_name string) ! {
+	adb.execute(device, 'shell screencap ${cmd.picture_path}/${file_name}.png')!
 }
 
-fn exec_screenrecord(adb Adb, device android.Device, file_name string) ! {
-	code := os.system('${adb.path} -s ${device.name} shell screenrecord ${cmd.movie_path}/${file_name}.mp4')
-	if code != 130 {
+fn exec_screenrecord(adb android.Adb, device android.Device, file_name string) ! {
+	result := adb.execute(device, 'shell screenrecord ${cmd.movie_path}/${file_name}.mp4')!
+	if result.exit_code != 130 {
 		return error('Error occured while recording movie')
 	}
 }
 
-fn exec_pull(adb Adb, device android.Device, absolute_path string) ! {
-	os.execute_opt('${adb.path} -s ${device.name} pull ${absolute_path}')!
+fn exec_pull(adb android.Adb, device android.Device, absolute_path string) ! {
+	adb.execute(device, 'pull ${absolute_path}')!
 }

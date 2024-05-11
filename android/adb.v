@@ -1,13 +1,38 @@
-module cmd
+module android
 
 import os
-import android
 import io.util { temp_file }
 
-pub fn (a Adb) get_all_active_devices() ![]android.Device {
-	devices := get_devices_str(a)!.map(fn (s string) android.Device {
+@[noinit]
+pub struct Adb {
+	path string
+}
+
+pub fn Adb.create() !Adb {
+	adb_path := os.find_abs_path_of_executable('adb')!
+
+	return Adb{
+		path: adb_path
+	}
+}
+
+pub fn (a Adb) execute(device Device, cmd_str string) !os.Result {
+	return os.execute_opt('${a.path} -s ${device.name} ${cmd_str}')!
+}
+
+pub fn (a Adb) run_waiting(device Device, cmd_str string) !int {
+	code := os.system('${a.path} -s ${device.name} ${cmd_str}')
+	return if code == 0 {
+		code
+	} else {
+		error('adb command error: ${code}')
+	}
+}
+
+pub fn (a Adb) get_all_active_devices() ![]Device {
+	devices := a.get_devices_str()!.map(fn (s string) Device {
 		device_info := s.split('\t')
-		return android.Device{
+		return Device{
 			name: device_info[0]
 			device_type: android.check_device_type(device_info[0])
 		}
@@ -24,7 +49,7 @@ pub fn (a Adb) select_active_device() !android.Device {
 		return error('Not found FZF in your Environment PATH')
 	}
 
-	device_str := get_devices_str(a)!
+	device_str := a.get_devices_str()!
 
 	_, input_file := temp_file()!
 	_, output_file := temp_file()!
@@ -49,14 +74,14 @@ pub fn (a Adb) select_active_device() !android.Device {
 	return device
 }
 
-fn get_devices_str(a Adb) ![]string {
+fn (a Adb) get_devices_str() ![]string {
 	devices_str := os.execute_opt('${a.path} devices')!.output.trim('\n')
 	mut devices := devices_str.split('\n')
 	devices.drop(1)
 
 	if devices.len != 0 && devices[0].contains('* daemon started successfully') {
 		devices.clear()
-		return get_devices_str(a)!
+		return a.get_devices_str()!
 	} else {
 		return devices
 	}

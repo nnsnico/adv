@@ -11,7 +11,7 @@ pub:
 	device_type DeviceType
 }
 
-pub fn check_device_type(s string) DeviceType {
+fn check_device_type(s string) DeviceType {
 	return match true {
 		s.contains('emulator-') { .emulator }
 		else { .device }

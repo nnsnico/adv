@@ -2,6 +2,7 @@
 
 module main
 
+import android
 import cmd
 import cli
 import os
@@ -30,7 +31,7 @@ app.add_command(cli.Command{
 	name: 'devices'
 	description: 'List connected devices.'
 	execute: fn (_ cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 		all_devices := adb.get_all_active_devices() or { print_err(err) }
 
 		for d in all_devices {
@@ -43,7 +44,7 @@ app.add_command(cli.Command{
 	name: 'device'
 	description: 'Select a device from connected device list.'
 	execute: fn (_ cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 		selected_device := adb.select_active_device() or { print_err(err) }
 
 		println(selected_device.name)
@@ -54,9 +55,9 @@ app.add_command(cli.Command{
 	name: 'pull'
 	description: 'Pull the specified file from a selected device.'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 
-		adb.pull_file(c.args[0]) or { print_err(err) }
+		cmd.pull_file(adb, c.args[0]) or { print_err(err) }
 	}
 	required_args: 1
 })
@@ -65,10 +66,10 @@ app.add_command(cli.Command{
 	name: 'screencap'
 	description: 'Capture a screenshot from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 
 		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
-		adb.capture_screen(c.args[0], is_exec_pull) or { print_err(err) }
+		cmd.capture_screen(adb, c.args[0], is_exec_pull) or { print_err(err) }
 	}
 	required_args: 1
 	flags: [
@@ -85,10 +86,10 @@ app.add_command(cli.Command{
 	name: 'screenrecord'
 	description: 'Record a screen from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 
 		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
-		adb.record_screen(c.args[0], is_exec_pull) or { print_err(err) }
+		cmd.record_screen(adb, c.args[0], is_exec_pull) or { print_err(err) }
 	}
 	required_args: 1
 	flags: [
@@ -113,16 +114,16 @@ developer.add_command(cli.Command{
 	usage: '[value 1|0|on|off]'
 	description: 'Show tap position.'
 	execute: fn (c cli.Command) ! {
-		adb := cmd.Adb.create() or { print_err(err) }
+		adb := android.Adb.create() or { print_err(err) }
 		is_toggle := c.flags.get_bool('toggle') or { print_err(err) }
 		is_show_status := c.flags.get_bool('status') or { print_err(err) }
 
 		if is_toggle {
-			next_status := adb.toggle_tap() or { print_err(err) }
+			next_status := cmd.toggle_tap(adb) or { print_err(err) }
 			println(utils.response_success('Toggle showtap status to `${next_status}`'))
 			exit(0)
 		} else if is_show_status {
-			current_status := adb.get_showtap_status() or { print_err(err) }
+			current_status := cmd.get_showtap_status(adb) or { print_err(err) }
 			println(utils.response_success('Current showtap status: ${current_status}'))
 			exit(0)
 		} else {
@@ -130,7 +131,7 @@ developer.add_command(cli.Command{
 				print_err(error('Please set value `1(on)` or `0(off)`'))
 			}
 
-			next_status := adb.show_tap(c.args[0]) or { print_err(err) }
+			next_status := cmd.show_tap(adb, c.args[0]) or { print_err(err) }
 			println(utils.response_success('Set showtap status to `${next_status}`'))
 		}
 	}
