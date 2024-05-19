@@ -34,7 +34,7 @@ pub fn (a Adb) get_all_active_devices() ![]Device {
 		device_info := s.split('\t')
 		return Device{
 			name: device_info[0]
-			device_type: android.check_device_type(device_info[0])
+			device_type: check_device_type(device_info[0])
 		}
 	})
 	return if devices.len != 0 {
@@ -44,12 +44,16 @@ pub fn (a Adb) get_all_active_devices() ![]Device {
 	}
 }
 
-pub fn (a Adb) select_active_device() !android.Device {
+pub fn (a Adb) select_active_device() !Device {
 	fzf := os.find_abs_path_of_executable('fzf') or {
 		return error('Not found FZF in your Environment PATH')
 	}
 
 	device_str := a.get_devices_str()!
+
+	if device_str.len == 0 {
+		return error('No connected Device')
+	}
 
 	_, input_file := temp_file()!
 	_, output_file := temp_file()!
@@ -63,9 +67,9 @@ pub fn (a Adb) select_active_device() !android.Device {
 	}
 
 	selected_line := os.read_file(output_file)!.split('\t')
-	device := android.Device{
+	device := Device{
 		name: selected_line[0]
-		device_type: android.check_device_type(selected_line[0])
+		device_type: check_device_type(selected_line[0])
 	}
 
 	os.rm(input_file)!
