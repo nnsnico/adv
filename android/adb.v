@@ -1,7 +1,7 @@
 module android
 
 import os
-import io.util { temp_file }
+import utils
 
 @[noinit]
 pub struct Adb {
@@ -45,35 +45,17 @@ pub fn (a Adb) get_all_active_devices() ![]Device {
 }
 
 pub fn (a Adb) select_active_device() !Device {
-	fzf := os.find_abs_path_of_executable('fzf') or {
-		return error('Not found FZF in your Environment PATH')
-	}
-
 	device_str := a.get_devices_str()!
 
 	if device_str.len == 0 {
 		return error('No connected Device')
 	}
 
-	_, input_file := temp_file()!
-	_, output_file := temp_file()!
-
-	os.write_file(input_file, device_str.join('\n'))!
-
-	code := os.system('${fzf} -0 -1 --preview= < "${input_file}" > "${output_file}"')
-
-	if code != 0 {
-		return error('Left from FZF')
-	}
-
-	selected_line := os.read_file(output_file)!.split('\t')
+	selected_line := utils.exec_fzf(device_str)!
 	device := Device{
-		name: selected_line[0]
-		device_type: check_device_type(selected_line[0])
+		name: selected_line
+		device_type: check_device_type(selected_line)
 	}
-
-	os.rm(input_file)!
-	os.rm(output_file)!
 
 	return device
 }
