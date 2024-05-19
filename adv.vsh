@@ -77,7 +77,7 @@ android_app.add_command(cli.Command{
 	execute: fn (_ cli.Command) ! {
 		adb := android.Adb.create() or { print_err(err) }
 
-		cmd.apps(adb) or { print_err(err) }
+		cmd.start_app(adb) or { print_err(err) }
 	}
 })
 
