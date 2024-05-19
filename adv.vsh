@@ -27,6 +27,8 @@ mut app := cli.Command{
 	}
 }
 
+// ------------------------------ Command for App ------------------------------
+
 app.add_command(cli.Command{
 	name: 'devices'
 	description: 'List connected devices.'
@@ -50,6 +52,36 @@ app.add_command(cli.Command{
 		println(selected_device.name)
 	}
 })
+
+mut android_app := cli.Command{
+	name: 'app'
+	description: 'Commands for App.'
+	execute: fn (c cli.Command) ! {
+		c.execute_help()
+	}
+}
+
+android_app.add_command(cli.Command{
+	name: 'list'
+	description: 'List installed apps'
+	execute: fn (_ cli.Command) ! {
+		adb := android.Adb.create() or { print_err(err) }
+
+		cmd.apps(adb) or { print_err(err) }
+	}
+})
+
+android_app.add_command(cli.Command{
+	name: 'start'
+	description: 'launch selected apps'
+	execute: fn (_ cli.Command) ! {
+		adb := android.Adb.create() or { print_err(err) }
+
+		cmd.apps(adb) or { print_err(err) }
+	}
+})
+
+app.add_command(android_app)
 
 app.add_command(cli.Command{
 	name: 'pull'
