@@ -182,6 +182,51 @@ developer.add_command(cli.Command{
 		},
 	]
 })
+developer.add_command(cli.Command{
+	name: 'wifi'
+	usage: '[value 1|0|on|off]'
+	description: 'Toggle wifi'
+	execute: fn (c cli.Command) ! {
+		adb := android.Adb.create() or { print_err(err) }
+		is_toggle := c.flags.get_bool('toggle') or { print_err(err) }
+		is_show_status := c.flags.get_bool('status') or { print_err(err) }
+
+		match true {
+			is_toggle {
+				next_status := cmd.toggle_wifi(adb) or { print_err(err) }
+				println(utils.response_success('Toggle wifi status to `${next_status}`'))
+				exit(0)
+			}
+			is_show_status {
+				current_status := cmd.get_wifi_status(adb) or { print_err(err) }
+				println(utils.response_success('Current wifi status: ${current_status}'))
+				exit(0)
+		}
+			else {
+				if c.args.len == 0 {
+					print_err(error('Please set value `1(on)` or `0(off)`'))
+				}
+
+				next_status := cmd.activate_wifi(adb, c.args[0]) or { print_err(err) }
+				println(utils.response_success('Set wifi status to `${next_status}`'))
+		}
+		}
+	}
+	flags: [
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'toggle'
+			abbrev: 't'
+			description: 'Toggle wifi activation'
+		},
+		cli.Flag{
+			flag: cli.FlagType.bool
+			name: 'status'
+			abbrev: 's'
+			description: 'Show wifi activation status'
+		},
+	]
+})
 
 app.add_command(developer)
 
