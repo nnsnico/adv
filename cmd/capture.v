@@ -1,6 +1,7 @@
 module cmd
 
 import android
+import utils
 
 const picture_path = '/sdcard/Pictures'
 const movie_path = '/sdcard/Movies'
@@ -25,9 +26,12 @@ pub fn record_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 	}
 }
 
-pub fn pull_file(a android.Adb, absolute_path string) ! {
+pub fn pull_file(a android.Adb, target_dir_path string) ! {
 	selected_device := a.select_active_device()!
-	exec_pull(a, selected_device, absolute_path)!
+	list := list_files(a, target_dir_path)!
+	download_target := utils.exec_fzf(list)!
+
+	exec_pull(a, selected_device, '${target_dir_path.trim_right('/')}/${download_target}')!
 }
 
 fn exec_screencap(adb android.Adb, device android.Device, file_name string) ! {

@@ -89,9 +89,31 @@ app.add_command(cli.Command{
 	execute: fn (c cli.Command) ! {
 		adb := android.Adb.create() or { print_err(err) }
 
-		cmd.pull_file(adb, c.args[0]) or { print_err(err) }
+		filetype := c.flags.get_string('filetype') or { print_err(err) }
+		match filetype {
+			'm', 'Movie', 'movie' {
+				cmd.pull_file(adb, '/sdcard/Movies') or { print_err(err) }
+			}
+			'p', 'Picture', 'picture' {
+				cmd.pull_file(adb, '/sdcard/Pictures/') or { print_err(err) }
+			}
+			else {
+				if c.args.len == 0 {
+					print_err(error('Please specify the target path in absolute value.'))
+				}
+
+				cmd.pull_file(adb, c.args[0]) or { print_err(err) }
+			}
+		}
 	}
-	required_args: 1
+	flags: [
+		cli.Flag{
+			flag: cli.FlagType.string
+			name: 'filetype'
+			abbrev: 'f'
+			description: 'Specify file type Movie or Picture'
+		},
+	]
 })
 
 app.add_command(cli.Command{
@@ -205,7 +227,7 @@ developer.add_command(cli.Command{
 				current_status := cmd.get_wifi_status(adb) or { print_err(err) }
 				println(utils.response_success('Current wifi status: ${current_status}'))
 				exit(0)
-		}
+			}
 			else {
 				if c.args.len == 0 {
 					print_err(error('Please set value `1(on)` or `0(off)`'))
@@ -213,7 +235,7 @@ developer.add_command(cli.Command{
 
 				next_status := cmd.activate_wifi(adb, c.args[0]) or { print_err(err) }
 				println(utils.response_success('Set wifi status to `${next_status}`'))
-		}
+			}
 		}
 	}
 	flags: [
