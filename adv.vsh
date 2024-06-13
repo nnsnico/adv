@@ -11,10 +11,11 @@ import v.vmod
 
 const manifest = vmod.decode(@VMOD_FILE) or { panic(err) }
 
-@[noreturn]
-fn print_err(msg IError) {
-	eprintln(utils.response_err(msg.str()))
-	exit(1)
+fn run(callback fn () !) {
+	callback() or {
+		eprintln(utils.response_err(err.str()))
+		exit(1)
+	}
 }
 
 mut app := cli.Command{
@@ -33,12 +34,14 @@ app.add_command(cli.Command{
 	name: 'devices'
 	description: 'List connected devices.'
 	execute: fn (_ cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
-		all_devices := adb.get_all_active_devices() or { print_err(err) }
+		run(fn () ! {
+			adb := android.Adb.create()!
+			all_devices := adb.get_all_active_devices()!
 
-		for d in all_devices {
-			println(d.name)
-		}
+			for d in all_devices {
+				println(d.name)
+			}
+		})
 	}
 })
 
@@ -46,10 +49,12 @@ app.add_command(cli.Command{
 	name: 'device'
 	description: 'Select a device from connected device list.'
 	execute: fn (_ cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
-		selected_device := adb.select_active_device() or { print_err(err) }
+		run(fn () ! {
+			adb := android.Adb.create()!
+			selected_device := adb.select_active_device()!
 
-		println(selected_device.name)
+			println(selected_device.name)
+		})
 	}
 })
 
@@ -65,9 +70,11 @@ android_app.add_command(cli.Command{
 	name: 'list'
 	description: 'List installed apps'
 	execute: fn (_ cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
+		run(fn () ! {
+			adb := android.Adb.create()!
 
-		cmd.apps(adb) or { print_err(err) }
+			cmd.apps(adb)!
+		})
 	}
 })
 
@@ -75,9 +82,11 @@ android_app.add_command(cli.Command{
 	name: 'start'
 	description: 'launch selected apps'
 	execute: fn (_ cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
+		run(fn () ! {
+			adb := android.Adb.create()!
 
-		cmd.start_app(adb) or { print_err(err) }
+			cmd.start_app(adb)!
+		})
 	}
 })
 
@@ -87,24 +96,26 @@ app.add_command(cli.Command{
 	name: 'pull'
 	description: 'Pull the specified file from a selected device.'
 	execute: fn (c cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
+		run(fn [c] () ! {
+			adb := android.Adb.create()!
 
-		filetype := c.flags.get_string('filetype') or { print_err(err) }
-		match filetype {
-			'm', 'Movie', 'movie' {
-				cmd.pull_file(adb, '/sdcard/Movies') or { print_err(err) }
-			}
-			'p', 'Picture', 'picture' {
-				cmd.pull_file(adb, '/sdcard/Pictures/') or { print_err(err) }
-			}
-			else {
-				if c.args.len == 0 {
-					print_err(error('Please specify the target path in absolute value.'))
+			filetype := c.flags.get_string('filetype')!
+			match filetype {
+				'm', 'Movie', 'movie' {
+					cmd.pull_file(adb, '/sdcard/Movies')!
 				}
+				'p', 'Picture', 'picture' {
+					cmd.pull_file(adb, '/sdcard/Pictures/')!
+				}
+				else {
+					if c.args.len == 0 {
+						return error('Please specify the target path in absolute value.')
+					}
 
-				cmd.pull_file(adb, c.args[0]) or { print_err(err) }
+					cmd.pull_file(adb, c.args[0])!
+				}
 			}
-		}
+		})
 	}
 	flags: [
 		cli.Flag{
@@ -120,10 +131,12 @@ app.add_command(cli.Command{
 	name: 'screencap'
 	description: 'Capture a screenshot from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
+		run(fn [c] () ! {
+			adb := android.Adb.create()!
 
-		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
-		cmd.capture_screen(adb, c.args[0], is_exec_pull) or { print_err(err) }
+			is_exec_pull := c.flags.get_bool('pull')!
+			cmd.capture_screen(adb, c.args[0], is_exec_pull)!
+		})
 	}
 	required_args: 1
 	flags: [
@@ -140,10 +153,12 @@ app.add_command(cli.Command{
 	name: 'screenrecord'
 	description: 'Record a screen from a connected device with the given file name.'
 	execute: fn (c cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
+		run(fn [c] () ! {
+			adb := android.Adb.create()!
 
-		is_exec_pull := c.flags.get_bool('pull') or { print_err(err) }
-		cmd.record_screen(adb, c.args[0], is_exec_pull) or { print_err(err) }
+			is_exec_pull := c.flags.get_bool('pull')!
+			cmd.record_screen(adb, c.args[0], is_exec_pull)!
+		})
 	}
 	required_args: 1
 	flags: [
@@ -168,30 +183,32 @@ developer.add_command(cli.Command{
 	usage: '[value 1|0|on|off]'
 	description: 'Show tap position.'
 	execute: fn (c cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
-		is_toggle := c.flags.get_bool('toggle') or { print_err(err) }
-		is_show_status := c.flags.get_bool('status') or { print_err(err) }
+		run(fn [c] () ! {
+			adb := android.Adb.create()!
+			is_toggle := c.flags.get_bool('toggle')!
+			is_show_status := c.flags.get_bool('status')!
 
-		match true {
-			is_toggle {
-				next_status := cmd.toggle_tap(adb) or { print_err(err) }
-				println(utils.response_success('Toggle showtap status to `${next_status}`'))
-				exit(0)
-			}
-			is_show_status {
-				current_status := cmd.get_showtap_status(adb) or { print_err(err) }
-				println(utils.response_success('Current showtap status: ${current_status}'))
-				exit(0)
-			}
-			else {
-				if c.args.len == 0 {
-					print_err(error('Please set value `1(on)` or `0(off)`'))
+			match true {
+				is_toggle {
+					next_status := cmd.toggle_tap(adb)!
+					println(utils.response_success('Toggle showtap status to `${next_status}`'))
+					exit(0)
 				}
+				is_show_status {
+					current_status := cmd.get_showtap_status(adb)!
+					println(utils.response_success('Current showtap status: ${current_status}'))
+					exit(0)
+				}
+				else {
+					if c.args.len == 0 {
+						return error('Please set value `1(on)` or `0(off)`')
+					}
 
-				next_status := cmd.show_tap(adb, c.args[0]) or { print_err(err) }
-				println(utils.response_success('Set showtap status to `${next_status}`'))
+					next_status := cmd.show_tap(adb, c.args[0])!
+					println(utils.response_success('Set showtap status to `${next_status}`'))
+				}
 			}
-		}
+		})
 	}
 	flags: [
 		cli.Flag{
@@ -213,30 +230,32 @@ developer.add_command(cli.Command{
 	usage: '[value 1|0|on|off]'
 	description: 'Toggle wifi'
 	execute: fn (c cli.Command) ! {
-		adb := android.Adb.create() or { print_err(err) }
-		is_toggle := c.flags.get_bool('toggle') or { print_err(err) }
-		is_show_status := c.flags.get_bool('status') or { print_err(err) }
+		run(fn [c] () ! {
+			adb := android.Adb.create()!
+			is_toggle := c.flags.get_bool('toggle')!
+			is_show_status := c.flags.get_bool('status')!
 
-		match true {
-			is_toggle {
-				next_status := cmd.toggle_wifi(adb) or { print_err(err) }
-				println(utils.response_success('Toggle wifi status to `${next_status}`'))
-				exit(0)
-			}
-			is_show_status {
-				current_status := cmd.get_wifi_status(adb) or { print_err(err) }
-				println(utils.response_success('Current wifi status: ${current_status}'))
-				exit(0)
-			}
-			else {
-				if c.args.len == 0 {
-					print_err(error('Please set value `1(on)` or `0(off)`'))
+			match true {
+				is_toggle {
+					next_status := cmd.toggle_wifi(adb)!
+					println(utils.response_success('Toggle wifi status to `${next_status}`'))
+					exit(0)
 				}
+				is_show_status {
+					current_status := cmd.get_wifi_status(adb)!
+					println(utils.response_success('Current wifi status: ${current_status}'))
+					exit(0)
+				}
+				else {
+					if c.args.len == 0 {
+						return error('Please set value `1(on)` or `0(off)`')
+					}
 
-				next_status := cmd.activate_wifi(adb, c.args[0]) or { print_err(err) }
-				println(utils.response_success('Set wifi status to `${next_status}`'))
+					next_status := cmd.activate_wifi(adb, c.args[0])!
+					println(utils.response_success('Set wifi status to `${next_status}`'))
+				}
 			}
-		}
+		})
 	}
 	flags: [
 		cli.Flag{
