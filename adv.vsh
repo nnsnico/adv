@@ -102,17 +102,27 @@ app.add_command(cli.Command{
 			filetype := c.flags.get_string('filetype')!
 			match filetype {
 				'm', 'Movie', 'movie' {
-					cmd.pull_file(adb, '/sdcard/Movies')!
+					if c.args.len == 0 {
+						cmd.pull_file(adb, cmd.Movie{})!
+					} else {
+						cmd.pull_all_files(adb, cmd.Movie{}, ...c.args)!
+					}
 				}
 				'p', 'Picture', 'picture' {
-					cmd.pull_file(adb, '/sdcard/Pictures/')!
+					if c.args.len == 0 {
+						cmd.pull_file(adb, cmd.Picture{})!
+					} else {
+						cmd.pull_all_files(adb, cmd.Picture{}, ...c.args)!
+					}
 				}
 				else {
 					if c.args.len == 0 {
 						return error('Please specify the target path in absolute value.')
 					}
 
-					cmd.pull_file(adb, c.args[0])!
+					cmd.pull_file(adb, cmd.Others{
+						raw_path: c.args[0]
+					})!
 				}
 			}
 		})

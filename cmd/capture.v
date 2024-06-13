@@ -3,16 +3,13 @@ module cmd
 import android
 import utils
 
-const picture_path = '/sdcard/Pictures'
-const movie_path = '/sdcard/Movies'
-
 pub fn capture_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 	selected_device := a.select_active_device()!
 	exec_screencap(a, selected_device, file_name)!
 
 	if is_exec_pull {
-		exec_pull(a, selected_device, '${cmd.picture_path}/${file_name}.png')!
-		remove_file(a, selected_device, '${cmd.picture_path}/${file_name}.png')!
+		exec_pull(a, selected_device, '${to_raw_path(Picture{})}/${file_name}.png')!
+		remove_file(a, selected_device, '${to_raw_path(Picture{})}/${file_name}.png')!
 	}
 }
 
@@ -21,25 +18,48 @@ pub fn record_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 	exec_screenrecord(a, selected_device, file_name)!
 
 	if is_exec_pull {
-		exec_pull(a, selected_device, '${cmd.movie_path}/${file_name}.mp4')!
-		remove_file(a, selected_device, '${cmd.movie_path}/${file_name}.mp4')!
+		exec_pull(a, selected_device, '${to_raw_path(Movie{})}/${file_name}.mp4')!
+		remove_file(a, selected_device, '${to_raw_path(Movie{})}/${file_name}.mp4')!
 	}
 }
 
-pub fn pull_file(a android.Adb, target_dir_path string) ! {
+pub fn pull_file(a android.Adb, target_dir_path Path) ! {
 	selected_device := a.select_active_device()!
-	list := list_files(a, target_dir_path)!
-	download_target := utils.exec_fzf(list)!
+	raw_path := to_raw_path(target_dir_path)
+	list := list_files(a, raw_path)!
 
-	exec_pull(a, selected_device, '${target_dir_path.trim_right('/')}/${download_target}')!
+	if list.len == 0 {
+		return error('No files in ${raw_path}')
+	}
+
+	download_target := utils.exec_fzf(list)!
+	exec_pull(a, selected_device, '${raw_path}/${download_target}')!
+}
+
+pub fn pull_all_files(a android.Adb, target_dir_path Path, target_path ...string) ! {
+	selected_device := a.select_active_device()!
+	raw_paths := target_path.map('${to_raw_path(target_dir_path)}/${it}')
+
+	validated_paths := check_all_file_exists(a, selected_device, raw_paths)!
+
+	match validated_paths {
+		ValidatePath {
+			for path in validated_paths.paths {
+				exec_pull(a, selected_device, path)!
+			}
+		}
+		InvalidatePath {
+			return error('Not found file: ${validated_paths.paths.join(", ")}')
+		}
+	}
 }
 
 fn exec_screencap(adb android.Adb, device android.Device, file_name string) ! {
-	adb.execute(device, 'shell screencap ${cmd.picture_path}/${file_name}.png')!
+	adb.execute(device, 'shell screencap ${to_raw_path(Picture{})}/${file_name}.png')!
 }
 
 fn exec_screenrecord(adb android.Adb, device android.Device, file_name string) ! {
-	result := adb.execute(device, 'shell screenrecord ${cmd.movie_path}/${file_name}.mp4')!
+	result := adb.execute(device, 'shell screenrecord ${to_raw_path(Movie{})}/${file_name}.mp4')!
 	if result.exit_code != 130 {
 		return error('Error occured while recording movie')
 	}
