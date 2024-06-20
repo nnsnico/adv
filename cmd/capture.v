@@ -26,7 +26,7 @@ pub fn record_screen(a android.Adb, file_name string, is_exec_pull bool) ! {
 pub fn pull_file(a android.Adb, target_dir_path Path) ! {
 	selected_device := a.select_active_device()!
 	raw_path := to_raw_path(target_dir_path)
-	list := list_files(a, raw_path)!
+	list := list_files(a, selected_device, raw_path)!
 
 	if list.len == 0 {
 		return error('No files in ${raw_path}')
