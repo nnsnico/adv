@@ -282,6 +282,16 @@ developer.add_command(cli.Command{
 		},
 	]
 })
+developer.add_command(cli.Command{
+	name: 'stoptask'
+	description: 'Stop lock task mode'
+	execute: fn (c cli.Command) ! {
+		run(fn () ! {
+			adb := android.Adb.create()!
+			cmd.leave_lock_task_mode(adb)!
+		})
+	}
+})
 
 app.add_command(developer)
 
