@@ -19,11 +19,11 @@ fn run(callback fn () !) {
 }
 
 mut app := cli.Command{
-	name: manifest.name
+	name:        manifest.name
 	description: manifest.description
-	version: manifest.version
-	posix_mode: true
-	defaults: struct {
+	version:     manifest.version
+	posix_mode:  true
+	defaults:    struct {
 		man: false
 	}
 }
@@ -31,9 +31,9 @@ mut app := cli.Command{
 // ------------------------------ Command for App ------------------------------
 
 app.add_command(cli.Command{
-	name: 'devices'
+	name:        'devices'
 	description: 'List connected devices.'
-	execute: fn (_ cli.Command) ! {
+	execute:     fn (_ cli.Command) ! {
 		run(fn () ! {
 			adb := android.Adb.create()!
 			all_devices := adb.get_all_active_devices()!
@@ -46,9 +46,9 @@ app.add_command(cli.Command{
 })
 
 app.add_command(cli.Command{
-	name: 'device'
+	name:        'device'
 	description: 'Select a device from connected device list.'
-	execute: fn (_ cli.Command) ! {
+	execute:     fn (_ cli.Command) ! {
 		run(fn () ! {
 			adb := android.Adb.create()!
 			selected_device := adb.select_active_device()!
@@ -59,17 +59,17 @@ app.add_command(cli.Command{
 })
 
 mut android_app := cli.Command{
-	name: 'app'
+	name:        'app'
 	description: 'Commands for App.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		c.execute_help()
 	}
 }
 
 android_app.add_command(cli.Command{
-	name: 'list'
+	name:        'list'
 	description: 'List installed apps'
-	execute: fn (_ cli.Command) ! {
+	execute:     fn (_ cli.Command) ! {
 		run(fn () ! {
 			adb := android.Adb.create()!
 
@@ -79,9 +79,9 @@ android_app.add_command(cli.Command{
 })
 
 android_app.add_command(cli.Command{
-	name: 'start'
+	name:        'start'
 	description: 'launch selected apps'
-	execute: fn (_ cli.Command) ! {
+	execute:     fn (_ cli.Command) ! {
 		run(fn () ! {
 			adb := android.Adb.create()!
 
@@ -93,9 +93,9 @@ android_app.add_command(cli.Command{
 app.add_command(android_app)
 
 app.add_command(cli.Command{
-	name: 'pull'
+	name:        'pull'
 	description: 'Pull the specified file from a selected device.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 
@@ -129,18 +129,18 @@ app.add_command(cli.Command{
 	}
 	flags: [
 		cli.Flag{
-			flag: cli.FlagType.string
-			name: 'filetype'
-			abbrev: 'f'
+			flag:        cli.FlagType.string
+			name:        'filetype'
+			abbrev:      'f'
 			description: 'Specify file type Movie or Picture'
 		},
 	]
 })
 
 app.add_command(cli.Command{
-	name: 'screencap'
+	name:        'cap'
 	description: 'Capture a screenshot from a connected device with the given file name.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 
@@ -149,20 +149,20 @@ app.add_command(cli.Command{
 		})
 	}
 	required_args: 1
-	flags: [
+	flags:         [
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'pull'
-			abbrev: 'p'
+			flag:        cli.FlagType.bool
+			name:        'pull'
+			abbrev:      'p'
 			description: 'Pull captured screen image at the same time.'
 		},
 	]
 })
 
 app.add_command(cli.Command{
-	name: 'screenrecord'
+	name:        'rec'
 	description: 'Record a screen from a connected device with the given file name.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 
@@ -171,28 +171,28 @@ app.add_command(cli.Command{
 		})
 	}
 	required_args: 1
-	flags: [
+	flags:         [
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'pull'
-			abbrev: 'p'
+			flag:        cli.FlagType.bool
+			name:        'pull'
+			abbrev:      'p'
 			description: 'Pull recorded screen video at the same time.'
 		},
 	]
 })
 
 mut developer := cli.Command{
-	name: 'developer'
+	name:        'dev'
 	description: 'Commands for Android developer.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		c.execute_help()
 	}
 }
 developer.add_command(cli.Command{
-	name: 'showtap'
-	usage: '[value 1|0|on|off]'
+	name:        'showtap'
+	usage:       '[value 1|0|on|off]'
 	description: 'Show tap position.'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 			is_toggle := c.flags.get_bool('toggle')!
@@ -222,24 +222,24 @@ developer.add_command(cli.Command{
 	}
 	flags: [
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'toggle'
-			abbrev: 't'
+			flag:        cli.FlagType.bool
+			name:        'toggle'
+			abbrev:      't'
 			description: 'Toggle tap visibility.'
 		},
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'status'
-			abbrev: 's'
+			flag:        cli.FlagType.bool
+			name:        'status'
+			abbrev:      's'
 			description: 'Show tap visibility status.'
 		},
 	]
 })
 developer.add_command(cli.Command{
-	name: 'wifi'
-	usage: '[value 1|0|on|off]'
+	name:        'wifi'
+	usage:       '[value 1|0|on|off]'
 	description: 'Toggle wifi'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 			is_toggle := c.flags.get_bool('toggle')!
@@ -269,23 +269,23 @@ developer.add_command(cli.Command{
 	}
 	flags: [
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'toggle'
-			abbrev: 't'
+			flag:        cli.FlagType.bool
+			name:        'toggle'
+			abbrev:      't'
 			description: 'Toggle wifi activation'
 		},
 		cli.Flag{
-			flag: cli.FlagType.bool
-			name: 'status'
-			abbrev: 's'
+			flag:        cli.FlagType.bool
+			name:        'status'
+			abbrev:      's'
 			description: 'Show wifi activation status'
 		},
 	]
 })
 developer.add_command(cli.Command{
-	name: 'stoptask'
+	name:        'stoptask'
 	description: 'Stop lock task mode'
-	execute: fn (c cli.Command) ! {
+	execute:     fn (c cli.Command) ! {
 		run(fn () ! {
 			adb := android.Adb.create()!
 			cmd.leave_lock_task_mode(adb)!

@@ -18,7 +18,7 @@ fn stop_lock_task_mode(adb android.Adb, device android.Device) !os.Result {
 }
 
 fn check_file_exists(adb android.Adb, device android.Device, path string) !bool {
- 	result := adb.execute(device, "shell '[ -e ${path} ] && echo -n 'ok' || echo -n 'ng''")!
+	result := adb.execute(device, "shell '[ -e ${path} ] && echo -n 'ok' || echo -n 'ng''")!
 
 	return if result.output == 'ok' {
 		true
@@ -26,4 +26,3 @@ fn check_file_exists(adb android.Adb, device android.Device, path string) !bool 
 		false
 	}
 }
-

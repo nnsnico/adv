@@ -33,7 +33,7 @@ pub fn (a Adb) get_all_active_devices() ![]Device {
 	devices := a.get_devices_str()!.map(fn (s string) Device {
 		device_info := s.split('\t')
 		return Device{
-			name: device_info[0]
+			name:        device_info[0]
 			device_type: check_device_type(device_info[0])
 		}
 	})
@@ -53,7 +53,7 @@ pub fn (a Adb) select_active_device() !Device {
 
 	selected_line := utils.exec_fzf(device_str)!
 	device := Device{
-		name: selected_line
+		name:        selected_line
 		device_type: check_device_type(selected_line)
 	}
 

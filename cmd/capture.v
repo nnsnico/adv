@@ -49,7 +49,7 @@ pub fn pull_all_files(a android.Adb, target_dir_path Path, target_path ...string
 			}
 		}
 		InvalidatePath {
-			return error('Not found file: ${validated_paths.paths.join(", ")}')
+			return error('Not found file: ${validated_paths.paths.join(', ')}')
 		}
 	}
 }
