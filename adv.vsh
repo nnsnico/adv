@@ -292,6 +292,23 @@ developer.add_command(cli.Command{
 		})
 	}
 })
+developer.add_command(cli.Command{
+	name:        'animator'
+	description: 'Set animator value'
+	execute:     fn (c cli.Command) ! {
+		run(fn [c] () ! {
+			if c.args.len == 0 {
+				return error('Please specify value (0.0-10.0)')
+			} else {
+				adb := android.Adb.create()!
+				value := c.args[0].f32()
+				cmd.set_window_animation(adb, value)!
+				cmd.set_transition_animation(adb, value)!
+				cmd.set_animator_duration(adb, value)!
+			}
+		})
+	}
+})
 
 app.add_command(developer)
 
