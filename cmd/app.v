@@ -13,7 +13,7 @@ pub fn apps(a android.Adb) ! {
 	trimed_prefix.sort()
 
 	for v in trimed_prefix {
-		println(utils.response_success(v))
+		println(v)
 	}
 }
 
