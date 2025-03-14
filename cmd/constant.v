@@ -14,7 +14,7 @@ type Path = Movie | Others | Picture
 fn to_extension(p Path) string {
 	return match p {
 		Movie { '.mp4' }
-		Picture {  '.png' }
+		Picture { '.png' }
 		Others { '' }
 	}
 }

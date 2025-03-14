@@ -127,7 +127,7 @@ app.add_command(cli.Command{
 			}
 		})
 	}
-	flags: [
+	flags:       [
 		cli.Flag{
 			flag:        cli.FlagType.string
 			name:        'filetype'
@@ -138,9 +138,9 @@ app.add_command(cli.Command{
 })
 
 app.add_command(cli.Command{
-	name:        'cap'
-	description: 'Capture a screenshot from a connected device with the given file name.'
-	execute:     fn (c cli.Command) ! {
+	name:          'cap'
+	description:   'Capture a screenshot from a connected device with the given file name.'
+	execute:       fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 
@@ -160,9 +160,9 @@ app.add_command(cli.Command{
 })
 
 app.add_command(cli.Command{
-	name:        'rec'
-	description: 'Record a screen from a connected device with the given file name.'
-	execute:     fn (c cli.Command) ! {
+	name:          'rec'
+	description:   'Record a screen from a connected device with the given file name.'
+	execute:       fn (c cli.Command) ! {
 		run(fn [c] () ! {
 			adb := android.Adb.create()!
 
@@ -220,7 +220,7 @@ developer.add_command(cli.Command{
 			}
 		})
 	}
-	flags: [
+	flags:       [
 		cli.Flag{
 			flag:        cli.FlagType.bool
 			name:        'toggle'
@@ -267,7 +267,7 @@ developer.add_command(cli.Command{
 			}
 		})
 	}
-	flags: [
+	flags:       [
 		cli.Flag{
 			flag:        cli.FlagType.bool
 			name:        'toggle'
