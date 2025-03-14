@@ -11,6 +11,14 @@ pub:
 
 type Path = Movie | Others | Picture
 
+fn to_extension(p Path) string {
+	return match p {
+		Movie { '.mp4' }
+		Picture {  '.png' }
+		Others { '' }
+	}
+}
+
 fn to_raw_path(p Path) string {
 	return match p {
 		Movie { '/sdcard/Movies' }

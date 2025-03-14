@@ -38,7 +38,16 @@ pub fn pull_file(a android.Adb, target_dir_path Path) ! {
 
 pub fn pull_all_files(a android.Adb, target_dir_path Path, target_path ...string) ! {
 	selected_device := a.select_active_device()!
-	raw_paths := target_path.map('${to_raw_path(target_dir_path)}/${it}')
+	raw_paths := target_path.map(fn [target_dir_path] (path string) string {
+		extension := to_extension(target_dir_path)
+		file_with_ext := if !path.ends_with(extension) {
+			'${path}${extension}'
+		} else {
+			path
+		}
+
+		return '${to_raw_path(target_dir_path)}/${file_with_ext}'
+	})
 
 	validated_paths := check_all_file_exists(a, selected_device, raw_paths)!
 
